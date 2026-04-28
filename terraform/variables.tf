@@ -2,8 +2,12 @@ variable "location" {
   description = "Azure region"
   type        = string
   default     = "westeurope"
-}
 
+  validation {
+    condition     = contains(["westeurope", "northeurope"], var.location)
+    error_message = "Location must be westeurope or northeurope."
+  }
+}
 variable "resource_group_name" {
   description = "Existing resource group used for the sandbox"
   type        = string

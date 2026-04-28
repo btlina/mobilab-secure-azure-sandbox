@@ -50,3 +50,20 @@ Action Group
 Storage Account: tfstatelina001
 Container: terraform
 State Key: mobilab-secure-azure-sandbox.tfstate
+# MobiLab Secure Azure Sandbox
+
+## Features
+
+- Terraform Infrastructure as Code
+- Azure remote state
+- VNet and subnet architecture
+- NSG security rules
+- Key Vault with Private Endpoint design
+- Monitoring foundation
+- GitHub Actions CI/CD simulation
+
+## Current Status
+
+CI/CD simulation: passing  
+Remote backend: configured  
+Real deployment from pipeline: blocked by RBAC permissions
