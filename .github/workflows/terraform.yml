@@ -1,0 +1,66 @@
+name: Terraform CI/CD Simulation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    name: Build - Terraform Validation and Plan Simulation
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init Without Backend
+        run: terraform init -backend=false
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Create Simulated Terraform Plan
+        run: |
+          echo "Simulated Terraform plan for mobilab-secure-azure-sandbox" > terraform_plan.tfplan
+          echo "Real plan/apply requires Azure authentication and RBAC permissions." >> terraform_plan.tfplan
+
+      - name: Archive Terraform Plan
+        run: tar -czf terraform_plan.tar.gz terraform_plan.tfplan
+
+      - name: Upload Terraform Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: terraform/terraform_plan.tar.gz
+
+  deploy:
+    name: Deploy - Artifact Simulation
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download Terraform Plan Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-plan
+
+      - name: Extract Terraform Plan
+        run: tar -xzf terraform_plan.tar.gz
+
+      - name: Show Plan Content
+        run: cat terraform_plan.tfplan
+
+      - name: Simulate Terraform Apply
+        run: echo "Terraform apply would run here after Azure authentication is configured."

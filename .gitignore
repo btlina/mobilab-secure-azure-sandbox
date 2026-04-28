@@ -1,0 +1,11 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfplan
+terraform_plan.tfplan
+terraform_plan.tar.gz
+simulation/
+crash.log
+crash.*.log
+.DS_Store
