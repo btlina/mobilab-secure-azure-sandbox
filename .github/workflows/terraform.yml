@@ -8,12 +8,8 @@ on:
 
 jobs:
   build:
-    name: Build - Terraform Validation and Plan Simulation
+    name: Build - Terraform and App Artifact
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: terraform
 
     steps:
       - name: Checkout code
@@ -23,20 +19,25 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Format Check
+        working-directory: terraform
         run: terraform fmt -check -recursive
 
       - name: Terraform Init Without Backend
+        working-directory: terraform
         run: terraform init -backend=false
 
       - name: Terraform Validate
+        working-directory: terraform
         run: terraform validate
 
       - name: Create Simulated Terraform Plan
+        working-directory: terraform
         run: |
           echo "Simulated Terraform plan for mobilab-secure-azure-sandbox" > terraform_plan.tfplan
           echo "Real plan/apply requires Azure authentication and RBAC permissions." >> terraform_plan.tfplan
 
       - name: Archive Terraform Plan
+        working-directory: terraform
         run: tar -czf terraform_plan.tar.gz terraform_plan.tfplan
 
       - name: Upload Terraform Plan Artifact
@@ -44,6 +45,18 @@ jobs:
         with:
           name: terraform-plan
           path: terraform/terraform_plan.tar.gz
+
+      - name: Build App Artifact
+        run: |
+          mkdir -p dist
+          cp app/index.html dist/index.html
+          tar -czf app-artifact.tar.gz -C dist .
+
+      - name: Upload App Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-artifact
+          path: app-artifact.tar.gz
 
   deploy:
     name: Deploy - Artifact Simulation
@@ -59,8 +72,22 @@ jobs:
       - name: Extract Terraform Plan
         run: tar -xzf terraform_plan.tar.gz
 
-      - name: Show Plan Content
+      - name: Show Terraform Plan Content
         run: cat terraform_plan.tfplan
 
       - name: Simulate Terraform Apply
         run: echo "Terraform apply would run here after Azure authentication is configured."
+
+      - name: Download App Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-artifact
+
+      - name: Extract App Artifact
+        run: |
+          mkdir -p app-deploy
+          tar -xzf app-artifact.tar.gz -C app-deploy
+          ls -la app-deploy
+
+      - name: Simulate App Deployment
+        run: echo "App artifact would be deployed to Azure App Service here."
