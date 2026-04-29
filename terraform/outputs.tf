@@ -21,3 +21,10 @@ output "key_vault_name" {
 output "log_analytics_workspace_name" {
   value = azurerm_log_analytics_workspace.main.name
 }
+output "web_app_name" {
+  value = azurerm_linux_web_app.main.name
+}
+
+output "web_app_url" {
+  value = azurerm_linux_web_app.main.default_hostname
+}
