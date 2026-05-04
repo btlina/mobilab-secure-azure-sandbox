@@ -10,8 +10,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check publish profile secret exists
+        run: |
+          if [ -z "${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}" ]; then
+            echo "AZURE_WEBAPP_PUBLISH_PROFILE is missing or empty"
+            exit 1
+          else
+            echo "AZURE_WEBAPP_PUBLISH_PROFILE exists"
+          fi
 
       - name: Build artifact
         run: |
@@ -19,10 +28,13 @@ jobs:
           zip -r app.zip index.html health.html
 
       - name: Verify artifact
-        run: ls -lah app/
+        run: |
+          ls -lah app/
+          unzip -l app/app.zip
 
-      - name: Deploy to Azure (ZIP)
+      - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v2
         with:
           app-name: app-mobilab-sandbox-8am3c
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: app/app.zip
