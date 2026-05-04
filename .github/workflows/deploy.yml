@@ -1,4 +1,4 @@
-name: Deploy App to Azure
+name: Deploy App to Azure - Blue Green
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  deploy:
+  deploy-blue-green:
     runs-on: ubuntu-latest
 
     steps:
@@ -32,9 +32,21 @@ jobs:
           ls -lah app/
           unzip -l app/app.zip
 
-      - name: Deploy to Azure App Service
+      - name: Deploy to Green Slot
         uses: azure/webapps-deploy@v2
         with:
           app-name: app-mobilab-sandbox-8am3c
+          slot-name: green
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: app/app.zip
+
+      - name: Health Check Green Slot
+        run: |
+          echo "Checking green slot health..."
+          curl -f https://app-mobilab-sandbox-8am3c-green.azurewebsites.net/health.html
+
+      - name: Swap Green to Production
+        run: |
+          echo "Swap step requires Azure CLI authentication."
+          echo "For now, this is documented as the production promotion step:"
+          echo "az webapp deployment slot swap --resource-group rg-lina-playground --name app-mobilab-sandbox-8am3c --slot green --target-slot production"
