@@ -66,4 +66,5 @@ State Key: mobilab-secure-azure-sandbox.tfstate
 
 CI/CD simulation: passing  
 Remote backend: configured  
-Real deployment from pipeline: blocked by RBAC permissions
+Real deployment from pipeline: blocked by RBAC permissions 
+CI pipeline test
